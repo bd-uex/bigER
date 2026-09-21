@@ -278,6 +278,8 @@ class ERDiagramGenerator implements IDiagramGenerator {
 			return edges
 		}
 
+		val notationType = model.notation?.notationType ?: NotationType.DEFAULT
+
 		val source = idCache.getId(relationship.first.target)
 		val target = idCache.getId(relationship.second.target)
 
@@ -292,9 +294,13 @@ class ERDiagramGenerator implements IDiagramGenerator {
 				type = DiagramTypes.EDGE_ASSOCIATIVE_RELATIONSHIP
 				sourceId = source
 				targetId = target
+				notation = notationType.toString
+				sourceConnectivity = getAssociativeCardinality(relationship.first)
+				targetConnectivity = getAssociativeCardinality(relationship.second)
 				children = createAssociativeRelationshipLabels(
 					relationship.first,
 					relationship.second,
+					notationType,
 					edgeId,
 					context
 				)
@@ -307,10 +313,18 @@ class ERDiagramGenerator implements IDiagramGenerator {
 	def SLabel[] createAssociativeRelationshipLabels(
 		RelationEntity sourceRelation,
 		RelationEntity targetRelation,
+		NotationType notation,
 		String edgeId,
 		extension Context context
 	) {
+		// En crowsfoot la cardinalidad va en las marcas gráficas de la
+		// propia arista, no en etiquetas de texto
+		if (notation.equals(NotationType.CROWSFOOT)) {
+			return newArrayOfSize(0)
+		}
+
 		val SLabel[] labels = newArrayOfSize(2)
+
 
 		labels.set(0, (new SLabel [
 			id = idCache.uniqueId(edgeId + '.sourceCardinality')

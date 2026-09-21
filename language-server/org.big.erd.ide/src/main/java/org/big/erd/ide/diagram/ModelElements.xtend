@@ -67,6 +67,9 @@ class NotationEdge extends SEdge {
 
 @Accessors
 class AssociativeRelationshipEdge extends SEdge {
+	String notation
+	String sourceConnectivity
+	String targetConnectivity
 
 	new() { }
 	new((AssociativeRelationshipEdge) => void initializer) {

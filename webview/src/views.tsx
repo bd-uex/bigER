@@ -428,52 +428,7 @@ export class PopupButtonView extends PreRenderedView {
     }
 }
 
-/**
- * Renderiza las aristas correspondientes a las relaciones asociativas.
- *
- * Una relación asociativa se representa mediante una línea directa
- * y continua entre las entidades participantes, sin nodo intermedio
- * ni nombre de relación.
- *
- * Las cardinalidades se renderizan como etiquetas sobre la propia arista.
- */
-@injectable()
-export class AssociativeRelationshipEdgeView extends PolylineEdgeView {
-    override render(
-        edge: Readonly<AssociativeRelationshipEdge>,
-        context: RenderingContext,
-        args?: IViewArgs
-    ): VNode | undefined {
-        const route = this.edgeRouterRegistry.route(edge, { args });
 
-        if (route.length === 0) {
-            if (edge.children.length === 0) {
-                return undefined;
-            }
-
-            return <g>{context.renderChildren(edge, { route })}</g>;
-        }
-
-        if (!this.isVisible(edge, route, context)) {
-            if (edge.children.length === 0) {
-                return undefined;
-            }
-
-            return <g>{context.renderChildren(edge, { route })}</g>;
-        }
-
-        return (
-            <g
-                class-sprotty-edge={true}
-                class-associative-relationship-edge={true}
-                class-mouseover={edge.hoverFeedback}
-            >
-                {this.renderLine(edge, route, context, args)}
-                {context.renderChildren(edge, { route })}
-            </g>
-        );
-    }
-}
 
 /**
  * Renderiza las aristas correspondientes a las relaciones normales.
@@ -553,7 +508,7 @@ export class NotationEdgeView extends PolylineEdgeView {
         </g>];
     }
 
-    private createCrowsFootEdge(source: Point, target: Point, secondElem: Point, penultimateElem: Point, cardinality: string, isSource: boolean): VNode[] {
+    protected createCrowsFootEdge(source: Point, target: Point, secondElem: Point, penultimateElem: Point, cardinality: string, isSource: boolean): VNode[] {
         let arrowSourceX = source.x;
         let arrowTargetX = target.x;
         // Move arrow from center of the circle
@@ -674,5 +629,65 @@ export class NotationEdgeView extends PolylineEdgeView {
 
     angle(x0: Point, x1: Point): number {
         return toDegrees(Math.atan2(x1.y - x0.y, x1.x - x0.x));
+    }
+}
+
+/**
+ * Renderiza las aristas correspondientes a las relaciones asociativas.
+ *
+ * Una relación asociativa se representa mediante una línea directa
+ * y continua entre las entidades participantes, sin nodo intermedio
+ * ni nombre de relación.
+ *
+ * Las cardinalidades se renderizan como etiquetas sobre la propia arista.
+ */
+@injectable()
+export class AssociativeRelationshipEdgeView extends NotationEdgeView {
+    override render(
+        edge: Readonly<AssociativeRelationshipEdge>,
+        context: RenderingContext,
+        args?: IViewArgs
+    ): VNode | undefined {
+        const route = this.edgeRouterRegistry.route(edge, { args });
+
+        if (route.length === 0 || !this.isVisible(edge, route, context)) {
+            if (edge.children.length === 0) {
+                return undefined;
+            }
+            return <g>{context.renderChildren(edge, { route })}</g>;
+        }
+
+        return (
+            <g
+                class-sprotty-edge={true}
+                class-associative-relationship-edge={true}
+                class-mouseover={edge.hoverFeedback}
+            >
+                {this.renderLine(edge, route, context, args)}
+                {this.renderAssociativeMarkers(edge, route)}
+                {context.renderChildren(edge, { route })}
+            </g>
+        );
+    }
+
+    // La arista asociativa es una sola arista con dos extremos de
+    // cardinalidad distinta, así que hay que dibujar una marca en cada uno
+    private renderAssociativeMarkers(
+        edge: Readonly<AssociativeRelationshipEdge>,
+        segments: Point[]
+    ): VNode[] {
+        if (edge.notation !== DiagramTypes.CROWSFOOT_NOTATION) {
+            return [];
+        }
+
+        const source = segments[0];
+        const target = segments[segments.length - 1];
+        const secondElem = segments[1];
+        const penultimateElem = segments[segments.length - 2];
+
+        return [
+            ...this.createCrowsFootEdge(source, target, secondElem, penultimateElem, edge.sourceConnectivity, true),
+            ...this.createCrowsFootEdge(source, target, secondElem, penultimateElem, edge.targetConnectivity, false)
+        ];
     }
 }

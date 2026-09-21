@@ -30,7 +30,10 @@ export class NotationEdge extends LibavoidEdge {
     relationshipType: number;
 }
 
-export class AssociativeRelationshipEdge extends LibavoidEdge {
+export class AssociativeRelationshipEdge extends NotationEdge {
+    sourceConnectivity: string;
+    targetConnectivity: string;
+
 }
 
 export class CardinalityLabel extends SLabel {
