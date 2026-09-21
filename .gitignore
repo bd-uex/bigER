@@ -35,3 +35,7 @@ org.eclipse.xtext.java.Java.prefs
 target
 .metadata
 *.vsix
+
+# Generados por el entorno de desarrollo
+.devcontainer/devcontainer-lock.json
+.vscode/settings.json
