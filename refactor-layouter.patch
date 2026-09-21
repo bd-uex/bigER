@@ -1,0 +1,377 @@
+diff --git a/examples/relationships.erd b/examples/relationships.erd
+index 14232b8..0926918 100644
+--- a/examples/relationships.erd
++++ b/examples/relationships.erd
+@@ -2,7 +2,7 @@ erdiagram Model
+ 
+ notation=default
+ 
+-entity Entity1 { id key }
++entity Entidad_con_nombre_largo_1 { id key }
+ entity Entity2 { id key }
+ entity Entity3 { id key }
+ entity Entity4 { id key }
+@@ -11,9 +11,10 @@ entity Entity6 { id key }
+ entity Entity7 { id key }
+ entity Entity8 { id key }
+ 
+-relationship Rel1 {
++relationship relacion_larga_1 {
+     // zero-or-one -> one-and-only-one
+-    Entity1[0..1] -> Entity2[1..1]
++    Entidad_con_nombre_largo_1[0..1] -> Entity2[1..1]
++    atributo_de_relacion_larga_1
+ }
+ relationship Rel2 {
+     // [1..1] is the same as [1] (one)
+diff --git a/language-server/org.big.erd.ide/src/main/java/org/big/erd/ide/diagram/ERDiagramGenerator.xtend b/language-server/org.big.erd.ide/src/main/java/org/big/erd/ide/diagram/ERDiagramGenerator.xtend
+index 64b5caf..30331cb 100644
+--- a/language-server/org.big.erd.ide/src/main/java/org/big/erd/ide/diagram/ERDiagramGenerator.xtend
++++ b/language-server/org.big.erd.ide/src/main/java/org/big/erd/ide/diagram/ERDiagramGenerator.xtend
+@@ -12,7 +12,6 @@ import org.big.erd.entityRelationship.Model
+ import org.big.erd.ide.diagram.EntityNode
+ import org.big.erd.ide.diagram.NotationEdge
+ import org.big.erd.ide.diagram.RelationshipNode
+-import org.eclipse.sprotty.Dimension
+ import org.big.erd.ide.diagram.ERModel
+ import org.eclipse.emf.ecore.EObject
+ import org.eclipse.sprotty.SEdge
+@@ -83,20 +82,6 @@ class ERDiagramGenerator implements IDiagramGenerator {
+ 		return graph;
+ 	}
+ 
+-	// Calcula cuánto ancho útil céntrico tiene el rombo a cierta altura (dy)
+-	// Afecta al tamaño final del ROMBO para que el texto no se salga
+-	def double widthFactor(double dy, double diamondH) {
+-		val f = 1.0 - (2.0 * Math.abs(dy) / diamondH)
+-		return Math.max(0.35, f)
+-	}
+-
+-	// Estima el ancho necesario para una línea de texto
+-	// Se usa para calcular el ancho mínimo del ROMBO
+-	def double reqLineW(String s, double charW, double padX) {
+-		val int l = if (s === null) 0 else s.length
+-		return (l as double) * charW + 2.0 * padX
+-	}
+-
+ 	def RelationshipNode relationshipNodes(Relationship relationship, extension Context context) {
+ 
+ 		val relationshipId = idCache.uniqueId(relationship, relationship.name)
+@@ -104,97 +89,24 @@ class ERDiagramGenerator implements IDiagramGenerator {
+ 		// Estado expandido/colapsado de la relación
+ 		val isExpanded = state.expandedElements.contains(relationshipId) || state.currentModel.type == 'NONE'
+ 
+-		// ---- Textos ----
+-		// Título del rombo
+-		val headerText = relationship.name ?: ""
+-
+-		// Líneas de atributos solo si la relación está expandida
+-		val attrLines = if (isExpanded)
+-			relationship.attributes?.map[a |
+-				a.name + " " + attributeDatatypeString(a)
+-			] ?: newArrayList
+-		else
+-			newArrayList
+-
+-		val hasAttrs = !attrLines.empty
+-
+-		// ---- Métricas visuales ----
+-		val double charW = 7.0
+-		val double padX = 24.0
+-		val double padTipY = 18.0
+-
+-		val double titleFont = 18.0
+-		val double gapTitleToSep = 10.0     // espacio título -> separador
+-		val double gapSepToAttrs = 12.0     // espacio separador -> atributos
+-		val double attrLineH = 18.0         // separación entre atributos
+-
+-		// Altura del contenido interno (título + separador + atributos)
+-		// Afecta a la altura final del ROMBO
+-		val double blockH =
+-			titleFont +
+-			(if (hasAttrs) (gapTitleToSep + gapSepToAttrs + attrLines.size * attrLineH) else 0.0)
+-
+-		// Altura del rombo según contenido
+-		val double diamondH = Math.max(90.0, blockH + 2.0 * padTipY)
+-		val double cy = diamondH / 2.0
+-
+-		// Posiciones relativas del bloque interno
+-		val double titleYRel = titleFont / 2.0         // centro del título
+-		val double sepYRel = titleFont + gapTitleToSep // posición del separador
+-
+-		// Calcula el rango vertical del contenido para centrarlo en el rombo
+-		val double firstRel = titleYRel
+-		val double lastRel = if (hasAttrs)
+-			(sepYRel + gapSepToAttrs + attrLineH / 2.0 + (attrLines.size - 1) * attrLineH)
+-		else
+-			titleYRel
+-
+-		// Desplazamiento para centrar el bloque (título + atributos) en el rombo
+-		val double shiftY = cy - ((firstRel + lastRel) / 2.0)
+-
+-		val double titleY = titleYRel + shiftY
+-
+-		// ---- Cálculo del ancho mínimo del rombo ----
+-		var double requiredW = 120.0
+-
+-		// Título influye en el ancho necesario del rombo
+-		val double dyTitle = titleY - cy
+-		val double needTitleW = reqLineW(headerText, charW, padX) / widthFactor(dyTitle, diamondH)
+-		requiredW = Math.max(requiredW, needTitleW)
+-
+-		// Atributos también influyen en el ancho del rombo
+-		if (hasAttrs) {
+-			val double attrsStartY = (sepYRel + gapSepToAttrs + attrLineH / 2.0) + shiftY
+-
+-			var int i = 0
+-			for (line : attrLines) {
+-				val double y = attrsStartY + i * attrLineH
+-				val double dy = y - cy
+-				val double needW = reqLineW(line, charW, padX) / widthFactor(dy, diamondH)
+-				requiredW = Math.max(requiredW, needW)
+-				i = i + 1
+-			}
+-		}
+-
+-		// Anchura final del ROMBO
+-		val double diamondW = Math.max(120.0, requiredW + 6.0)
+-
+ 		// ---- Creación del nodo del rombo ----
++		// Sin 'size' ni estimaciones de ancho: el tamaño lo calcula el
++		// layouter del cliente a partir del texto medido en el navegador.
+ 		val node = new RelationshipNode => [
+ 			id = relationshipId
+ 			type = DiagramTypes.NODE_RELATIONSHIP
+ 			weak = relationship.weak ? true : false
+ 
+-			size = new Dimension(diamondW, diamondH)
+-
+ 			layout = 'vbox'
+ 			layoutOptions = new LayoutOptions [
+-				minWidth  = diamondW
+-				minHeight = diamondH
+ 				HAlign = 'center'
+ 				VAlign = 'center'
+-				VGap = 0.0
+-				paddingFactor = 0.0
++				VGap = 4.0
++				// Infla la caja al doble del contenido para que el
++				// rectángulo de texto quede inscrito en el rombo
++				paddingFactor = 1.7
++				minWidth = 100.0
++				minHeight = 80.0
+ 			]
+ 
+ 			children = new ArrayList<SModelElement>
+@@ -223,7 +135,11 @@ class ERDiagramGenerator implements IDiagramGenerator {
+ 			val comp = new SCompartment => [
+ 				id = relationshipId + '.attributes'
+ 				type = DiagramTypes.COMP_ATTRIBUTES
+-				layout = 'none'
++				layout = 'vbox'
++				layoutOptions = new LayoutOptions [
++					HAlign = 'center'
++					VGap = 1.0
++				]
+ 				children = new ArrayList<SModelElement>
+ 			]
+ 
+diff --git a/webview/src/views.tsx b/webview/src/views.tsx
+index 32642b4..7b524d9 100644
+--- a/webview/src/views.tsx
++++ b/webview/src/views.tsx
+@@ -26,7 +26,7 @@ export class ERModelView<IRenderingArgs> extends SGraphView<IRenderingArgs> {
+             notationSelect.value = model.notation;
+         }
+         const edgeRouting = this.edgeRouterRegistry.routeAllChildren(model);
+-        const transform = `scale(${model.zoom}) translate(${-model.scroll.x},${-model.scroll.y})`;
++        const transform = `scale(${model.zoom}) translate(${-model.scroll.x},${189-model.scroll.y})`;
+         return <svg class-sprotty-graph={true}>
+             <g transform={transform}>
+                 {context.renderChildren(model, edgeRouting)}
+@@ -194,95 +194,34 @@ export class RelationshipNodeView extends RectangularNodeView {
+     context: RenderingContext
+   ): VNode | undefined {
+ 
+-    // Si el nodo no es visible, no se renderiza nada
+     if (!this.isVisible(node, context)) return undefined;
+ 
+-    // Tamaño del nodo (viene calculado desde el .xtend)
++    // Tamaño del nodo: lo calcula el layouter del cliente midiendo el texto
+     const w = Math.max(node.bounds.width, 0);
+     const h = Math.max(node.bounds.height, 0);
+-
+-    // Centro del nodo (se usa para dibujar el rombo y centrar textos)
+     const cx = w / 2;
+     const cy = h / 2;
+ 
+     // ---- ROMBO ----
+-    // Puntos del polígono en forma de rombo (arriba, derecha, abajo, izquierda)
+     const points = `${cx},0 ${w},${cy} ${cx},${h} 0,${cy}`;
+ 
+-    // ---- TEXTOS DESDE EL MODELO ----
+-    // Título (nombre de la relación): node.children[0]
+-    const headerComp: any = node.children?.[0];
+-    const headerLabel: any = headerComp?.children?.[0];
+-    const title: string = headerLabel?.text ?? "";
+-
+-    // Botón de expandir/colapsar del header
+-    const expandButton: any = headerComp?.children?.[1];
+-
+-    // Atributos: node.children[1] (cada hijo es una línea)
+-    const attrsComp: any = node.children?.[1];
+-    const attrLabels: any[] = (attrsComp?.children ?? []);
+-    const attrLines: string[] = attrLabels
+-      .map(l => l?.text)
+-      .filter((t: any) => typeof t === "string" && t.trim().length > 0);
+-
+-    // Si hay atributos, se dibuja separador y lista de líneas
+-    const hasAttrs = attrLines.length > 0;
+-
+-    // ---- MÉTRICAS VISUALES (espaciados) ----
+-    // Afecta a TÍTULO / ATRIBUTOS / SEPARADOR (posiciones y separación)
+-    const titleFont = 18;
+-    const attrFont = 14;
+-
+-    const gapTitleToSep = 14; // espacio TÍTULO -> SEPARADOR
+-    const gapSepToAttrs = 8; // espacio SEPARADOR -> ATRIBUTOS (más pequeño = atributos más arriba)
+-    const attrLineH = 22; // separación entre líneas de ATRIBUTOS
+-
+-    const innerPadX = 0; // margen para recortar el SEPARADOR (que no toque el borde del rombo)      // margen para recortar el SEPARADOR (que no toque el borde del rombo)
+-
+-    // Devuelve la mitad del ancho disponible del rombo a una Y absoluta
+-    // Se usa para RECORTAR el SEPARADOR según el “estrechamiento” del rombo
+-    const halfWidthAtY = (yAbs: number) => {
+-      if (yAbs <= cy) return (w * yAbs) / h;
+-      return (w * (h - yAbs)) / h;
+-    };
+-
+-    // ---- CENTRADO DEL BLOQUE ----
+-    // blockH = altura del contenido interno (título + separador + atributos)
+-    // top = desplazamiento para centrar ese contenido dentro del rombo
+-    const attrsBlockH = hasAttrs ?
+-        gapTitleToSep + gapSepToAttrs + (attrLines.length * attrLineH) :
+-        0;
+-
+-    const blockH = titleFont + attrsBlockH;
+-
+-    const top = (h - blockH) / 2;
+-
+-    // ---- POSICIONES RELATIVAS DENTRO DEL BLOQUE ----
+-    // SOLO movemos el TÍTULO con offset; separador y atributos quedan fijos
+-    const titleYRelBase = titleFont / 2;
+-    const titleOffsetY = 6; // mueve SOLO el TÍTULO (más = más abajo)
+-    const titleYRel = titleYRelBase + titleOffsetY;
+-
+-    const sepYRel = titleFont + gapTitleToSep; // Y del SEPARADOR (no depende del offset del título)
+-    const attrsStartYRel =
+-        titleFont +
+-        gapTitleToSep +
+-        gapSepToAttrs +
+-        (attrLineH / 2); // inicio ATRIBUTOS
+-
+-    // ---- SEPARADOR (línea) ----
+-    // Se recorta según el ancho disponible del rombo en esa altura
+-    const sepYAbs = top + sepYRel;
+-    const halfSep = Math.max(0, halfWidthAtY(sepYAbs) - innerPadX);
+-    const sepPath = `M ${cx - halfSep},${sepYRel} L ${cx + halfSep},${sepYRel}`;
+-
+-    // Atributos comunes de texto: centrado horizontal y vertical
+-    const mkTextAttrs = (x: number, y: number) => ({
+-      x: Number(x),
+-      y: Number(y),
+-      "text-anchor": "middle",
+-      "dominant-baseline": "middle"
+-    }) as any;
++    // ---- SEPARADOR ----
++    // El servidor solo envía el compartimento de atributos si la relación
++    // está expandida, y sus bounds ya vienen resueltos por el layouter
++    const attrsComp = node.children[1] as Readonly<SCompartment> | undefined;
++    const hasAttrs = attrsComp !== undefined && attrsComp.children.length > 0;
++
++    // Ancho disponible del rombo a una altura dada, para recortar el separador
++    const halfWidthAtY = (y: number) =>
++      y <= cy ? (w * y) / h : (w * (h - y)) / h;
++
++    let sepPath = "";
++
++    if (hasAttrs && attrsComp !== undefined) {
++      const sepY = attrsComp.bounds.y - 4;
++      const halfSep = Math.max(0, halfWidthAtY(sepY) - 6);
++      sepPath = `M ${cx - halfSep},${sepY} L ${cx + halfSep},${sepY}`;
++    }
+ 
+     return (
+       <g class-relationship={true}>
+@@ -295,59 +234,20 @@ export class RelationshipNodeView extends RectangularNodeView {
+           points={points}
+         />
+ 
+-        {/* Contenido centrado dentro del rombo */}
+-        <g transform={`translate(0,${top})`}>
+-
+-          {/* TÍTULO (se puede ajustar con titleOffsetY) */}
+-          <text
+-            key={`${node.id}-title`}
+-            attrs={mkTextAttrs(cx, titleYRel)}
+-            style={{
+-              pointerEvents: "none",
+-              fontSize: `${titleFont}px`,
+-              fontWeight: "bold"
+-            }}
+-          >
+-            {title}
+-          </text>
+-
+-        {/* Flecha de expandir/colapsar colocada junto al título */}
+-        {expandButton && (
+-            <g transform={`translate(${cx + 30}, ${titleYRel - 8})`}>
+-                {context.renderElement(expandButton)}
+-            </g>
++        {/* SEPARADOR entre el título y los atributos */}
++        {sepPath !== "" && (
++          <path
++            key={`${node.id}-sep`}
++            class-comp-separator={true}
++            d={sepPath}
++            style={{ pointerEvents: "none" }}
++          />
+         )}
+ 
+-          {/* SEPARADOR (solo visible si la relación está expandida y tiene atributos) */}
+-          {hasAttrs && node.expanded && (
+-            <path
+-              key={`${node.id}-sep`}
+-              class-comp-separator={true}
+-              d={sepPath}
+-              style={{ pointerEvents: "none" }}
+-            />
+-          )}
+-
+-          {/* ATRIBUTOS (cada línea se coloca con attrsStartYRel + i*attrLineH) */}
+-          {/* (solo visibles si la relación está expandida) */}
+-          {hasAttrs && node.expanded && attrLines.map((line, i) => {
+-            const yRel = Number(attrsStartYRel + (i * attrLineH));
+-
+-            return (
+-              <text
+-                key={`${node.id}-attr-${i}`}
+-                attrs={mkTextAttrs(cx, yRel)}
+-                style={{
+-                  pointerEvents: "none",
+-                  fontSize: `${attrFont}px`
+-                }}
+-              >
+-                {line}
+-              </text>
+-            );
+-          })}
+-
+-        </g>
++        {/* TÍTULO, BOTÓN DE EXPANDIR Y ATRIBUTOS:
++            los posiciona el layouter a partir del modelo */}
++        {context.renderChildren(node)}
++
+       </g>
+     );
+   }
