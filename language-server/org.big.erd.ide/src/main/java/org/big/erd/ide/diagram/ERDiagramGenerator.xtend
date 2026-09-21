@@ -295,8 +295,8 @@ class ERDiagramGenerator implements IDiagramGenerator {
 				sourceId = source
 				targetId = target
 				notation = notationType.toString
-				sourceConnectivity = getAssociativeCardinality(relationship.first)
-				targetConnectivity = getAssociativeCardinality(relationship.second)
+				sourceConnectivity = getCardinality(relationship.first)
+				targetConnectivity = getCardinality(relationship.second)
 				children = createAssociativeRelationshipLabels(
 					relationship.first,
 					relationship.second,
@@ -319,7 +319,7 @@ class ERDiagramGenerator implements IDiagramGenerator {
 	) {
 		// En crowsfoot la cardinalidad va en las marcas gráficas de la
 		// propia arista, no en etiquetas de texto
-		if (notation.equals(NotationType.CROWSFOOT)) {
+		if (usesGraphicalCardinality(notation)) {
 			return newArrayOfSize(0)
 		}
 
@@ -411,17 +411,24 @@ class ERDiagramGenerator implements IDiagramGenerator {
 		String edgeId,
 		extension Context context
 	) {
+		val typeCardinality = targetRelation === null ?
+			DiagramTypes.LABEL_TOP :
+			DiagramTypes.LABEL_TOP_LEFT
 		val typeRole = targetRelation === null ?
 			DiagramTypes.LABEL_BOTTOM :
 			DiagramTypes.LABEL_BOTTOM_LEFT
 
-		// Normal relationships do not display cardinality labels.
-		// Only role labels and, for direct UML relationships,
-		// the relationship name and the second role are preserved.
-		var size = targetRelation === null ? 1 : 3
-		val SLabel[] labels = newArrayOfSize(size)
+		// Sin indices fijos: cada etiqueta se anade cuando corresponde, asi
+		// anadir o quitar una no obliga a renumerar las demas
+		val labels = new ArrayList<SLabel>
 
-		labels.set(0, (new SLabel [
+		labels.add((new SLabel [
+			id = idCache.uniqueId(edgeId + '.label')
+			text = getEdgeLabelText(notation, getCardinality(relation))
+			type = typeCardinality
+		]).trace(relation, RELATION_ENTITY__CARDINALITY, -1))
+
+		labels.add((new SLabel [
 			id = idCache.uniqueId(edgeId + '.roleLabel')
 			text = getRoleLabelText(relation)
 			type = typeRole
@@ -430,13 +437,19 @@ class ERDiagramGenerator implements IDiagramGenerator {
 		if (targetRelation !== null) {
 			val relationship = relation.eContainer() as Relationship
 
-			labels.set(1, (new SLabel [
+			labels.add((new SLabel [
 				id = idCache.uniqueId(edgeId + '.relationName')
 				text = relationship.name
 				type = DiagramTypes.LABEL_TOP
 			]).trace(relationship, RELATIONSHIP__NAME, -1))
 
-			labels.set(2, (new SLabel [
+			labels.add((new SLabel [
+				id = idCache.uniqueId(edgeId + '.additionalLabel')
+				text = getEdgeLabelText(notation, getCardinality(targetRelation))
+				type = DiagramTypes.LABEL_TOP_RIGHT
+			]).trace(targetRelation, RELATION_ENTITY__CARDINALITY, -1))
+
+			labels.add((new SLabel [
 				id = idCache.uniqueId(edgeId + '.additionalRoleLabel')
 				text = getRoleLabelText(targetRelation)
 				type = DiagramTypes.LABEL_BOTTOM_RIGHT
@@ -704,12 +717,20 @@ class ERDiagramGenerator implements IDiagramGenerator {
 		return DiagramTypes.EDGE
 	}
 	
+
+	// Unico sitio donde se decide si una notacion expresa la cardinalidad
+	// con marcas graficas sobre la arista o con etiquetas de texto
+	def boolean usesGraphicalCardinality(NotationType notation) {
+		return notation.equals(NotationType.CROWSFOOT) || notation.equals(NotationType.BACHMAN)
+	}
+
 	def String getEdgeLabelText(NotationType notation, String cardinality) {
-		if (notation.equals(NotationType.CROWSFOOT) || notation.equals(NotationType.BACHMAN)) {
+		if (usesGraphicalCardinality(notation)) {
 			return ' '
 		}
 		return cardinality
 	}
+
 	
 	def String getRoleLabelText(RelationEntity relation) {
 		if (relation.role !== null) {

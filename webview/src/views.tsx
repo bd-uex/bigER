@@ -543,7 +543,7 @@ export class NotationEdgeView extends PolylineEdgeView {
         }
     }
 
-    private createBachmanEdge(source: Point, target: Point, secondElem: Point, penultimateElem: Point, cardinality: string, isSource:boolean): VNode[] {
+    protected createBachmanEdge(source: Point, target: Point, secondElem: Point, penultimateElem: Point, cardinality: string, isSource:boolean): VNode[] {
         let arrowSourceX = source.x;
         let arrowTargetX = target.x;
         // Move arrow from center of the circle
@@ -670,24 +670,31 @@ export class AssociativeRelationshipEdgeView extends NotationEdgeView {
         );
     }
 
-    // La arista asociativa es una sola arista con dos extremos de
-    // cardinalidad distinta, así que hay que dibujar una marca en cada uno
+    // Dos extremos con cardinalidades distintas, asi que se dibuja una
+    // marca en cada uno. Anadir una notacion nueva es anadir un case.
     private renderAssociativeMarkers(
         edge: Readonly<AssociativeRelationshipEdge>,
         segments: Point[]
     ): VNode[] {
-        if (edge.notation !== DiagramTypes.CROWSFOOT_NOTATION) {
-            return [];
-        }
-
         const source = segments[0];
         const target = segments[segments.length - 1];
         const secondElem = segments[1];
         const penultimateElem = segments[segments.length - 2];
 
+        const markersFor = (cardinality: string, isSource: boolean): VNode[] => {
+            switch (edge.notation) {
+                case DiagramTypes.CROWSFOOT_NOTATION:
+                    return this.createCrowsFootEdge(source, target, secondElem, penultimateElem, cardinality, isSource);
+                case DiagramTypes.BACHMAN_NOTATION:
+                    return this.createBachmanEdge(source, target, secondElem, penultimateElem, cardinality, isSource);
+                default:
+                    return [];
+            }
+        };
+
         return [
-            ...this.createCrowsFootEdge(source, target, secondElem, penultimateElem, edge.sourceConnectivity, true),
-            ...this.createCrowsFootEdge(source, target, secondElem, penultimateElem, edge.targetConnectivity, false)
+            ...markersFor(edge.sourceConnectivity, true),
+            ...markersFor(edge.targetConnectivity, false)
         ];
     }
 }
