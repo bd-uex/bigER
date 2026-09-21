@@ -1,9 +1,9 @@
 {
-	"name": "erdiagram",
-	"displayName": "bigER Modeling Tool",
-	"description": "Entity Relationship Diagrams with a textual editor and SQL code generation.",
-	"version": "0.5.1",
-	"publisher": "BIGModelingTools",
+	"name": "erdiagram-uex",
+	"displayName": "bigER UEx (Bases de Datos)",
+	"description": "bigER UEx con jerarquías, entidades asociativas y relaciones asociativas. Adaptación docente basada en borkdominik/bigER.",
+	"version": "0.5.3",
+	"publisher": "uex-bases-de-datos",
 	"categories": [
 		"Programming Languages",
 		"Visualization",
@@ -19,10 +19,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/borkdominik/bigER"
-	},
-	"bugs": {
-		"url": "https://github.com/borkdominik/bigER/issues"
+		"url": "https://github.com/Cristii25/bigER"
 	},
 	"license": "SEE LICENSE IN LICENSE",
 	"preview": false,
@@ -106,20 +103,20 @@
 				"category": "bigER"
 			},
 			{
-                "command": "erdiagram.generate.mongodb.proxy",
-                "title": "Generate MongoDb",
-                "category": "bigER"
-            },
+				"command": "erdiagram.generate.mongodb.proxy",
+				"title": "Generate MongoDb",
+				"category": "bigER"
+			},
 			{
-                "command": "erdiagram.generate.neo4j.proxy",
-                "title": "Generate Neo4j",
-                "category": "bigER"
-            },
+				"command": "erdiagram.generate.neo4j.proxy",
+				"title": "Generate Neo4j",
+				"category": "bigER"
+			},
 			{
-                "command": "erdiagram.generate.cassandradb.proxy",
-                "title": "Generate Cassandra Db",
-                "category": "bigER"
-            },
+				"command": "erdiagram.generate.cassandradb.proxy",
+				"title": "Generate Cassandra Db",
+				"category": "bigER"
+			},
 			{
 				"command": "erdiagram.diagram.open",
 				"title": "Open ER Diagram",
@@ -162,8 +159,8 @@
 			"properties": {
 				"erdiagram.generateDrop": {
 					"type": "boolean",
-          			"default": false,
-          			"description": "Generate a file with DROP TABLE statements when generating SQL."
+					"default": false,
+					"description": "Generate a file with DROP TABLE statements when generating SQL."
 				}
 			}
 		},
@@ -315,8 +312,8 @@
 		"keybindings": [
 			{
 				"command": "erdiagram.diagram.open",
-				"key": "ctrl+o",
-				"mac": "cmd+o",
+				"key": "ctrl+k d",
+				"mac": "cmd+k d",
 				"when": "resourceExtname == '.erd'"
 			},
 			{
@@ -327,15 +324,15 @@
 			},
 			{
 				"command": "erdiagram.diagram.fit",
-				"key": "ctrl+f",
-				"mac": "cmd+f",
+				"key": "ctrl+alt+f",
+				"mac": "cmd+alt+f",
 				"when": "erdiagram-diagram-focused"
 			}
 		],
 		"submenus": [
 			{
-			  "id": "erdiagram.generate",
-			  "label": "Generate"
+				"id": "erdiagram.generate",
+				"label": "Generate"
 			}
 		]
 	},
