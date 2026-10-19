@@ -314,7 +314,7 @@ export class RelationshipNodeView extends RectangularNodeView {
     }) as any;
 
     return (
-      <g class-relationship={true}>
+      <g class-relationship={true} class-weak-relationship={node.weak}>
 
         {/* ROMBO */}
         <polygon

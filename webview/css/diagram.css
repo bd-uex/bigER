@@ -162,7 +162,6 @@ text {
 }
 
 .weak-relationship > .sprotty-node {
-    fill: white;
     stroke: black;
     border-style: ridge;
     stroke-width: 8;
