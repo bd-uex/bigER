@@ -2,7 +2,7 @@
 	"name": "erdiagram-uex",
 	"displayName": "bigER UEx (Bases de Datos)",
 	"description": "bigER UEx con jerarquías, entidades asociativas y relaciones asociativas. Adaptación docente basada en borkdominik/bigER.",
-	"version": "0.5.4",
+	"version": "1.0.0",
 	"publisher": "uex-bases-de-datos",
 	"categories": [
 		"Programming Languages",

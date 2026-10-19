@@ -1,158 +1,650 @@
-<!-- LOGO -->
 <p align="center">
   <img src="./extension/media/logo.png" alt="Logo" width="150" height="150" />
 </p>
 
-<!-- TITLE -->
-<h1 align="center">BIGER Modeling Tool</h1>
+<h1 align="center">bigER UEx</h1>
 
-<!-- BADGES -->
 <p align="center">
-  <img alt="GitHub Build" src="https://img.shields.io/github/actions/workflow/status/borkdominik/bigER/build.yml?branch=main" height="20"/>
-  <img alt="Visual Studio Marketplace Installs" src="https://img.shields.io/visual-studio-marketplace/i/BIGModelingTools.erdiagram?color=9cf" height="20"/>
-  <img alt="Visual Studio Marketplace Version" src="https://img.shields.io/visual-studio-marketplace/v/BIGModelingTools.erdiagram" height="20"/>
-  <img alt="Visual Studio Marketplace Last Updated" src="https://img.shields.io/visual-studio-marketplace/last-updated/BIGModelingTools.erdiagram?color=blue" height="20"/>
-  <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/borkdominik/bigER?color=lightgrey" height="20"/>
+  <b>Herramienta de modelado Entidad-Relación para VS Code, adaptada para la asignatura de Bases de Datos de la Universidad de Extremadura.</b>
 </p>
-
-<!-- DESCRIPTION -->
-<p align="center">
-  <b>Open-source ER modeling tool for VS Code supporting hybrid, textual- and graphical editing, multiple notations, and SQL code generation!</b></br>
-  <sub><a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.erdiagram">➜ Download the VS Code Extension</a><sub>
-</p>
-
-<!-- DEMO -->
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/39776671/197230584-f045bee2-0d5a-4120-b0cf-3ad7ae7675d8.gif" alt="Demo" width="800" />
-</p>
-
-<!-- FEATURES -->
-**Main features:**
-- **📝 Textual Language** for the specification of ER models in the textual editor. Assistive *validation* and *rich-text editing* support, enabled with the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/), allows to quickly get familiar with the available language constructs.
-- 📊 **Diagram View** that is fully synchronized with the textual model and automatically updates on changes. Also offers an interactive toolbar with *graphical editing actions*, *layout mechanisms*, and *multi-notation support*.
-- 🖨️ **Code Generation** to *generate SQL tables* out of the specified ER models and integrate with existing databases.  
 
 ---
 
-<br />	
+## Qué es esto
 
-**📖 Table of Contents**
-1. [About the Project](#about-the-project)
-2. [Usage](#usage)
-3. [Build Instructions](#build-instructions)
-4. [Issues](#issues)
-5. [Contributing](#contributing)
-6. [License](#license)
-7. [Other Tools](#other-tools)
+Este repositorio es una **adaptación docente** del proyecto
+[bigER](https://github.com/borkdominik/bigER), una herramienta de código
+abierto para modelar diagramas Entidad-Relación en VS Code, con edición
+textual y gráfica simultánea, varias notaciones y generación de código SQL.
 
-<br />	
+Esta versión añade el soporte del modelo Entidad-Relación extendido que se
+utiliza en la asignatura, y algunos ajustes de representación y de atajos de
+teclado.
 
-## About the Project
+### Atribución
 
-Entity-Relationship (ER) modeling is the de-facto standard for data modeling, offering powerful concepts to visualize data in (relational) databases. Various tools for ER modeling are available, however, often they are inflexible, proprietary, or constrained to specific platforms. 
+| | |
+|---|---|
+| **Proyecto original** | [borkdominik/bigER](https://github.com/borkdominik/bigER), de Dominik Bork y colaboradores (TU Wien), bajo licencia MIT |
+| **Jerarquías y entidades asociativas** | [Cristina Vaquerizo Jiménez](https://github.com/Cristii25/bigER), como Trabajo Fin de Grado dirigido en la Universidad de Extremadura |
+| **Adaptación docente** | Universidad de Extremadura, asignatura de Bases de Datos |
 
-The bigER tool aims to provide an open-source and modern solution for ER by making use of the [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/). The protocol is used for communicating textual language features to the VS Code client and is further extended to also support graphical editing, making it one of the first *hybrid modeling tools* based on the LSP.
+Si usas la herramienta en un trabajo académico, cita el proyecto original: en
+la raíz del repositorio están los ficheros `CITATION.cff` y `CITATION.bib`.
 
-**Built With**
+---
 
-The Java-based language server is realized with [Xtext](https://www.eclipse.org/Xtext/) and [Xtend](https://www.eclipse.org/xtend/), while the diagramming capabilities are based on [Sprotty](https://github.com/eclipse/sprotty). Sprotty enhances the server with graphical language features (using [`sprotty-server`](https://github.com/eclipse/sprotty-server)) and integrates with VS Code through [Sprotty VS Code Extensions](https://github.com/eclipse/sprotty-vscode). 
+# Instalación
 
+Esta parte está escrita suponiendo que **nunca has instalado una extensión de
+VS Code ni has usado la terminal**. Si ya te manejas, salta directamente al
+[resumen rápido](#resumen-rapido-para-quien-ya-sabe).
 
+Hacen falta tres cosas, **y en este orden**:
 
-<!-- USAGE -->
-## Usage
+| | Qué | Para qué |
+|---|---|---|
+| 1 | **Visual Studio Code** | El editor donde escribirás los diagramas |
+| 2 | **Java 17** | Un programa que la extensión necesita por debajo |
+| 3 | **bigER UEx** | La extensión, en un fichero `.vsix` |
 
-Download and install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.erdiagram), see the [Installation](https://github.com/borkdominik/bigER/wiki/Installation) page in the Wiki for instructions.
+**El orden importa.** Si instalas la extensión antes que Java, parecerá
+funcionar a medias: coloreará el texto pero no dibujará ningún diagrama, y es
+difícil darse cuenta de por qué.
 
-**New ER Model**
+Tiempo estimado: 20 minutos, la mayor parte esperando descargas.
 
-After installation, ER models can be created in `.erd` files. Use the `New Sample ER Model` command in the Command Palette or refer to the example below to get started with a basic model.
+---
 
-```java
-erdiagram Model
+## Paso 0: abrir una terminal
 
-notation=default
+Lo vas a necesitar para comprobar si ya tienes algo instalado. Es una ventana
+donde se escriben órdenes de texto; no tiene ningún misterio.
 
-entity A {
-   id key
-}
-entity B {
-   id key
-}
-relationship Rel {
-   A -> B
-}
+| Sistema | Cómo abrirla |
+|---|---|
+| **Windows 11** | Tecla Windows, escribe `terminal` y pulsa Enter |
+| **macOS** | `Cmd + Espacio`, escribe `terminal` y pulsa Enter |
+| **Ubuntu** | `Ctrl + Alt + T`, o busca *Terminal* en tus aplicaciones |
+
+Para escribir una orden: la copias, la pegas en la terminal y pulsas Enter.
+En la terminal de macOS y Ubuntu se pega con `Cmd+V` y `Ctrl+Shift+V`
+respectivamente.
+
+---
+
+## Paso 1: comprobar qué tienes ya instalado
+
+Antes de descargar nada, comprueba si ya tienes VS Code o Java. Mucha gente
+tiene alguno de los dos sin saberlo.
+
+### ¿Tengo VS Code?
+
+```
+code --version
 ```
 
-**Open the Diagram**
+**Si funciona**, verás tres líneas: un número de versión, una cadena larga de
+letras y números, y la arquitectura. Ya lo tienes, salta al paso 3.
 
-The corresponding *ER Diagram* can be opened by using the button in the editor toolbar, the context menu when right-clicking the file, or by pressing <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>O</kbd>.
+**Si dice que no se reconoce el comando**, puede significar dos cosas: que no
+lo tienes, o que lo tienes pero la orden `code` no está disponible desde la
+terminal. Comprueba si la aplicación existe buscándola en tu menú de
+aplicaciones. Si está, ve al paso 2 y lee la nota sobre el comando `code`.
 
-**Learn More**
+### ¿Tengo Java y de qué versión?
 
-For more information on how to use the tool, see the [bigER Wiki](https://github.com/borkdominik/bigER/wiki/).
+```
+java -version
+```
 
-<!-- BUILD INSTRUCTIONS -->
-## Build Instructions
+**Si funciona**, verás algo así:
 
-**Prerequisites**
+```
+openjdk version "17.0.13" 2024-10-15
+OpenJDK Runtime Environment Temurin-17.0.13+11 (build 17.0.13+11)
+OpenJDK 64-Bit Server VM Temurin-17.0.13+11 (build 17.0.13+11, mixed mode)
+```
 
-- [Node.js](https://nodejs.org/en/) 16 or above
-- [Java](http://jdk.java.net/) JDK 11 or above 
-- [VS Code](https://code.visualstudio.com/) v1.46 or above
-- [yarn](https://yarnpkg.com/)
+Lo que importa es **el número de la primera línea**:
 
+- **17 o superior** (17, 21, 24...): te vale, salta al paso 4
+- **1.8 u 11**: es una versión antigua, instala la 17 siguiendo el paso 3
+- **El comando no existe**: no tienes Java, ve al paso 3
 
-Download or clone the repository and in the root folder of the project execute the following commands:
+Ojo con un detalle: puede aparecer `java version` en lugar de `openjdk
+version`. Da igual, lo que cuenta es el número.
+
+---
+
+## Paso 2: instalar Visual Studio Code
+
+Sáltate este paso si el `code --version` del paso 1 funcionó.
+
+### Windows 11
+
+**Con interfaz gráfica:**
+
+1. Entra en https://code.visualstudio.com
+2. Pulsa el botón azul de descarga, que detecta tu sistema automáticamente
+3. Abre el fichero descargado, `VSCodeUserSetup-x64-....exe`
+4. Acepta la licencia y pulsa *Siguiente* en todas las pantallas
+5. En **Tareas adicionales**, marca estas dos casillas, que te ahorrarán
+   tiempo después:
+   - *Agregar la acción "Abrir con Code" al menú contextual de archivos*
+   - *Agregar la acción "Abrir con Code" al menú contextual de directorios*
+6. *Instalar* y luego *Finalizar*
+
+**Por línea de comandos**, si prefieres:
+
+```
+winget install Microsoft.VisualStudioCode
+```
+
+`winget` viene incluido en Windows 11. Si no lo reconoce, usa la vía gráfica.
+
+### macOS
+
+**Con interfaz gráfica:**
+
+1. Averigua primero qué procesador tienes: menú de la manzana →
+   *Acerca de este Mac*. Mira la línea del *Chip*
+2. Entra en https://code.visualstudio.com
+3. Descarga la versión **Apple Silicon** si pone "Apple M...", o **Intel** si
+   es más antiguo. La **Universal** vale para los dos si tienes dudas
+4. Se descarga un `.zip`. Haz doble clic para descomprimirlo
+5. **Arrastra la aplicación a la carpeta Aplicaciones.** Este paso importa: si
+   la abres desde Descargas, macOS se quejará más adelante
+6. Ábrela desde Aplicaciones. La primera vez preguntará si estás seguro de
+   abrir una aplicación descargada de internet; pulsa *Abrir*
+
+**Por línea de comandos**, si tienes Homebrew:
+
+```
+brew install --cask visual-studio-code
+```
+
+**Importante en macOS: activar el comando `code`.** Por defecto no está
+disponible en la terminal. Para activarlo:
+
+1. Abre VS Code
+2. Pulsa `Cmd + Shift + P`
+3. Escribe `shell command` y elige
+   **Shell Command: Install 'code' command in PATH**
+4. Cierra y vuelve a abrir la terminal
+
+Sin esto, la instalación por línea de comandos del paso 4 no funcionará,
+aunque la vía gráfica sí.
+
+### Ubuntu
+
+**Con interfaz gráfica:**
+
+1. Entra en https://code.visualstudio.com y descarga el paquete `.deb`
+2. Haz doble clic en el fichero y pulsa *Instalar*
+
+**Por línea de comandos**, que en Ubuntu suele ser más cómodo:
+
+```
+sudo snap install code --classic
+```
+
+O con el paquete `.deb` descargado:
+
+```
+sudo apt install ./code_*.deb
+```
+
+Te pedirá tu contraseña. Mientras la escribes no se verá nada en pantalla, ni
+siquiera asteriscos: es normal, escribe y pulsa Enter.
+
+---
+
+## Paso 3: instalar Java 17
+
+La extensión usa un programa escrito en Java para entender tus diagramas. Sin
+Java, la extensión se instala pero **no dibuja nada**.
+
+Vamos a instalar **Eclipse Temurin 17**, que es gratuito y el que hemos
+probado.
+
+### Windows 11
+
+**Con interfaz gráfica:**
+
+1. Entra en https://adoptium.net/es/temurin/releases/
+2. En los desplegables selecciona:
+   - **Operating System**: Windows
+   - **Architecture**: x64
+   - **Package Type**: JDK
+   - **Version**: 17 - LTS
+3. Descarga el fichero que acaba en **`.msi`**
+4. Ábrelo y pulsa *Next* hasta llegar a la pantalla **Custom Setup**, que
+   muestra un árbol de opciones
+5. **Esta es la pantalla importante.** Busca **`Set JAVA_HOME variable`**.
+   Junto a ella habrá un icono con una X roja, que significa que no se va a
+   instalar. Haz clic en ese icono y elige
+   **`Will be installed on local hard drive`**
+   - Comprueba también que **`Add to PATH`** esté activada. Normalmente lo
+     está por defecto
+6. *Next*, *Install*, y espera. Puede pedirte permiso de administrador
+
+**Por línea de comandos:**
+
+```
+winget install EclipseAdoptium.Temurin.17.JDK
+```
+
+Esta vía configura las variables automáticamente, así que te ahorra el lío de
+la pantalla *Custom Setup*. Es la que yo usaría.
+
+### macOS
+
+**Con interfaz gráfica:**
+
+1. Mira qué procesador tienes: menú de la manzana → *Acerca de este Mac*
+2. Entra en https://adoptium.net/es/temurin/releases/
+3. Selecciona:
+   - **Operating System**: macOS
+   - **Architecture**: **aarch64** si tu Mac es M1, M2, M3 o M4, o **x64** si
+     es Intel
+   - **Package Type**: JDK
+   - **Version**: 17 - LTS
+4. Descarga el fichero que acaba en **`.pkg`**
+5. Ábrelo y sigue el instalador. Te pedirá la contraseña de tu usuario
+
+Elegir la arquitectura equivocada es el error más común en Mac. Si eliges x64
+en un Mac con chip M, el instalador terminará sin errores pero Java irá lento
+o fallará.
+
+**Por línea de comandos**, si tienes Homebrew:
+
+```
+brew install --cask temurin@17
+```
+
+Homebrew detecta solo la arquitectura, así que evita ese error.
+
+### Ubuntu
+
+```
+sudo apt update
+sudo apt install openjdk-17-jdk
+```
+
+Para otras distribuciones:
+
+```
+# Fedora
+sudo dnf install java-17-openjdk
+
+# Arch, Manjaro
+sudo pacman -S jdk17-openjdk
+```
+
+### Después de instalar Java, en cualquier sistema
+
+**Cierra VS Code por completo y vuelve a abrirlo.** No vale cerrar solo la
+ventana:
+
+- Windows y Ubuntu: cierra todas las ventanas
+- macOS: `Cmd + Q`
+
+Si VS Code estaba abierto durante la instalación, no se enterará de que Java
+existe.
+
+**Comprueba que ha funcionado**, en una terminal nueva:
+
+```
+java -version
+```
+
+Debe decir 17 o superior. Si sigue diciendo que el comando no existe:
+
+- **Windows**: cierra la sesión de Windows y vuelve a entrar. Si aún así
+  falla, reinstala marcando `Set JAVA_HOME variable`
+- **macOS y Ubuntu**: cierra y abre la terminal; si persiste, reinicia
+
+---
+
+## Paso 4: instalar la extensión
+
+### Descargar el fichero
+
+Ve a la [última versión publicada](../../releases/latest) y descarga el
+fichero que acaba en **`.vsix`**.
+
+**No hagas doble clic en ese fichero.** Las extensiones de VS Code no se
+instalan así.
+
+### Desinstalar la versión pública, si la tienes
+
+Existe una versión pública de bigER en el Marketplace. Si la tienes, hay que
+quitarla: las dos gestionan los mismos ficheros y entran en conflicto, con lo
+que verás errores que no existen.
+
+**Con interfaz gráfica:**
+
+1. Abre VS Code y ve al panel de extensiones con `Ctrl+Shift+X`
+   (`Cmd+Shift+X` en macOS)
+2. Busca `bigER`
+3. Si en la sección **Installed** aparece **bigER Modeling Tool**, pulsa el
+   engranaje a su derecha y elige **Uninstall**
+
+**Por línea de comandos:**
+
+```
+code --uninstall-extension BIGModelingTools.erdiagram
+```
+
+Si dice que la extensión no está instalada, perfecto: no la tenías.
+
+### Instalar bigER UEx
+
+**Con interfaz gráfica:**
+
+1. En VS Code, panel de extensiones: `Ctrl+Shift+X` (`Cmd+Shift+X` en macOS)
+2. Arriba a la derecha **de ese panel**, no de la ventana, hay un botón con
+   tres puntos **`...`**. Púlsalo
+3. Elige **Install from VSIX...**
+4. Busca el fichero `.vsix` que descargaste, selecciónalo y pulsa *Instalar*
+5. Espera unos segundos; abajo a la derecha aparecerá un aviso
+
+**Por línea de comandos**, sustituyendo la ruta por la tuya:
+
+```
+# Windows (si lo descargaste en Descargas)
+code --install-extension %USERPROFILE%\Downloads\erdiagram-uex-0.6.0.vsix
+
+# macOS y Ubuntu
+code --install-extension ~/Downloads/erdiagram-uex-0.6.0.vsix
+```
+
+Ajusta el número de versión al del fichero que descargaste.
+
+Puede aparecer un aviso que empieza por `DeprecationWarning: url.parse()`.
+Ignóralo: lo produce VS Code, no la extensión, y no afecta a nada.
+
+### Y después
+
+**Cierra VS Code por completo y vuelve a abrirlo.**
+
+**Comprueba que está instalada:**
+
+```
+code --list-extensions --show-versions
+```
+
+Entre la lista debe aparecer `uex-bases-de-datos.erdiagram-uex` con su número
+de versión.
+
+---
+
+## Paso 5: comprobar que funciona
+
+Crea el fichero de prueba **desde VS Code**, no desde el explorador de
+archivos. El motivo se explica al final.
+
+1. Crea una carpeta en tu equipo, por ejemplo `Bases de Datos`
+2. En VS Code: **File → Open Folder...** y selecciónala
+3. Si pregunta si confías en los autores de la carpeta, di que sí
+4. En la barra lateral, pasa el ratón por el nombre de la carpeta y pulsa el
+   icono de **New File**
+5. Escribe exactamente **`prueba.erd`** y pulsa Enter
+
+   > El `.erd` del final es imprescindible. Sin él la extensión no reconoce el
+   > fichero.
+
+6. Pega dentro esto y guarda con `Ctrl+S` (`Cmd+S` en macOS):
+
+```
+erdiagram Ejemplo_Repositorio
+
+notation=crowsfoot
+
+entity Superclase {
+    id_superclase key
+    atributos_superclase
+}
+
+// La jerarquía es ahora un elemento propio del modelo, con nombre.
+// Se declara una vez y en ella se indican las dos propiedades:
+//   completitud:  total   (toda instancia de la superclase pertenece a alguna subclase)
+//                 partial (puede haber instancias que no pertenezcan a ninguna)
+//   solapamiento: disjoint     (una instancia no puede estar en dos subclases a la vez)
+//                 overlapping  (sí puede)
+// Estamos poniendo "total disjoint" como ejemplo, pero podría ser "total overlapping", "partial disjoint", "partial overlapping" o solo "partial" si solo hay una subclase en la jerarquía.
+hierarchy nombre_jerarquia Superclase partial overlapping
+
+// Subclase_1 se crea porque tiene atributos propios distintos a los de la superclase.
+// El extends apunta al NOMBRE DE LA JERARQUÍA, no a la superclase.
+entity Subclase_1 extends nombre_jerarquia {
+    id_superclase key
+    atributos_subclase_1
+}
+
+// Subclase_2 se crea porque participa en una relación en la que la superclase no participa.
+// El extends apunta al NOMBRE DE LA JERARQUÍA, no a la superclase.
+entity Subclase_2 extends nombre_jerarquia {
+    id_superclase key
+}
+
+// Otra entidad, para relacionarla con Subclase_2
+entity Otra_Entidad {
+    id_otra_entidad key
+}
+
+// Relación específica de la subclase: es lo que justifica haber creado a Subclase_2. La superclase no participa en esta relación.
+relationship relacion {
+    Subclase_2[1..N] -> Otra_Entidad[1..N]
+    atributos_de_la_relacion
+}
+
+//palabra reservada "weak" para indicar que es una entidad débil
+weak entity Entidad_Debil {
+   clave_parcial partial-key
+   resto_de_atributos
+}
+
+//palabra reservada "weak" para indicar que es una relación débil
+weak relationship relacion_debil {
+   Otra_Entidad[1..1] -> Entidad_Debil[0..N]
+   atributos_relacion_debil
+}
+
+```
+
+### Las tres señales de que todo va bien
+
+1. **El texto tiene colores.** Palabras como `entity`, `hierarchy` o `key`
+   aparecen resaltadas
+2. **Abajo a la derecha dice `ER Language`.** Si dice `Plain Text`, el fichero
+   no acaba en `.erd` o no reiniciaste VS Code
+3. **Abajo a la izquierda, los contadores de errores y avisos marcan 0**
+
+### Abrir el diagrama
+
+Esta es la prueba definitiva, la que necesita que Java esté bien instalado.
+Usa cualquiera de estas tres formas:
+
+- El atajo **`Ctrl+Alt+E`** (`Cmd+Alt+E` en macOS)
+- El icono que aparece arriba a la derecha de la pestaña del fichero
+- Clic derecho sobre `prueba.erd` en la lista → **Open in Diagram**
+
+Se abrirá un panel con el diagrama. Debes ver las cinco entidades, una caja
+transparente con `total disjoint` entre `Persona` y sus subclases, y
+`Matricula` dibujada como un rectángulo con un rombo dentro.
+
+**La primera vez tarda unos segundos**, porque tiene que arrancar el programa
+de Java. Espera diez segundos antes de preocuparte.
+
+Si ves el diagrama, has terminado.
+
+---
+
+## Atajos de teclado
+
+| Acción | Windows y Linux | macOS |
+|---|---|---|
+| Abrir el diagrama | `Ctrl+Alt+E` | `Cmd+Alt+E` |
+| Ajustar el diagrama a la pantalla | `Ctrl+Alt+F` | `Cmd+Alt+F` |
+
+En el diagrama, el triangulito junto al nombre de cada entidad despliega o
+repliega sus atributos.
+
+---
+
+## Problemas frecuentes
+
+### El texto se colorea pero el diagrama no aparece
+
+Es **Java**, en la gran mayoría de los casos. Comprueba:
+
+```
+java -version
+```
+
+Si no dice 17 o superior, vuelve al paso 3. Si lo dice, cierra VS Code **por
+completo** y vuelve a abrirlo: es muy probable que estuviera abierto cuando
+instalaste Java.
+
+### Escribo disparates y no me marca ningún error
+
+Lo mismo: la validación la hace el programa de Java.
+
+### Abajo a la derecha dice `Plain Text` en lugar de `ER Language`
+
+Dos causas posibles:
+
+**El fichero no acaba en `.erd`.** En Windows, el explorador de archivos
+oculta las extensiones conocidas, así que un fichero creado desde ahí puede
+llamarse en realidad `prueba.erd.txt` sin que lo veas. Por eso conviene
+crearlo desde VS Code.
+
+**No reiniciaste VS Code** tras instalar la extensión.
+
+### Errores raros en ficheros que deberían estar bien
+
+Probablemente tienes las dos versiones de bigER instaladas. Comprueba:
+
+```
+code --list-extensions | grep -i erdiagram
+```
+
+En Windows, con `findstr` en lugar de `grep`:
+
+```
+code --list-extensions | findstr /i erdiagram
+```
+
+Solo debe aparecer `uex-bases-de-datos.erdiagram-uex`.
+
+### No encuentro el botón de los tres puntos para instalar el VSIX
+
+Tiene que ser el de la **cabecera del panel de extensiones**, no el de la
+ventana. Pulsa `Ctrl+Shift+X`, mira el título **EXTENSIONS** arriba del panel
+izquierdo, y los tres puntos están a su derecha, en la misma línea.
+
+### En macOS, `code` no se reconoce en la terminal
+
+Hay que activarlo: `Cmd+Shift+P` → **Shell Command: Install 'code' command in
+PATH**. Y después cierra y abre la terminal.
+
+### En macOS dice que no puede comprobar la aplicación
+
+Haz clic derecho sobre VS Code en la carpeta Aplicaciones y elige **Abrir** en
+el menú. Aparecerá un botón para abrirla de todas formas.
+
+### El diagrama se ve desordenado, con cajas superpuestas
+
+Prueba a ajustarlo con `Ctrl+Alt+F` (`Cmd+Alt+F`). Con modelos grandes la
+disposición puede salir desordenada: es una limitación conocida del algoritmo
+que coloca las cajas, no un error de tu modelo.
+
+### Nada de lo anterior funciona
+
+Comunícalo por el Campus Virtual indicando tu sistema operativo y versión, el
+resultado de `java -version`, qué pone abajo a la derecha (`ER Language` o
+`Plain Text`) y una captura de la ventana completa.
+
+---
+
+## Resumen rápido, para quien ya sabe
 
 ```bash
-language-server/gradlew -p language-server/ build 
-yarn --cwd webview  
-yarn --cwd extension
+# Windows
+winget install Microsoft.VisualStudioCode
+winget install EclipseAdoptium.Temurin.17.JDK
+code --install-extension %USERPROFILE%\Downloads\erdiagram-uex-0.6.0.vsix
+
+# macOS
+brew install --cask visual-studio-code temurin@17
+code --install-extension ~/Downloads/erdiagram-uex-0.6.0.vsix
+
+# Ubuntu
+sudo snap install code --classic
+sudo apt install openjdk-17-jdk
+code --install-extension ~/Downloads/erdiagram-uex-0.6.0.vsix
 ```
 
-After building the project, the extension can be run in VS Code by pressing <kbd>F5</kbd> or selecting `Run ➜ Start Debugging` from the menu.
+Reinicia VS Code por completo después. Desinstala antes
+`BIGModelingTools.erdiagram` si la tienes.
 
+---
 
-<!-- TODO: Add to Wiki
-The code is split into a **client side** (extension with webview) and a **server side** (language with LSP and diagram server). It is recommended to use  **VS Code** for the client code, written in *TypeScript* and **Eclipse** for the server side, based on *Java*. Eclipse must be compatible with Xtext and Xtend (e.g. [Eclipse IDE for Java and DSL Developers](https://www.eclipse.org/downloads/packages/release/juno/sr2/eclipse-ide-java-and-dsl-developers)) and create a new workspace to avoid configuration issues. Import the language server as a Gradle project (<kbd>File -> Import -> Existing Gradle Project</kbd>) and override the workspace settings.
--->
+## Actualizaciones
 
-<!-- ISSUES -->
-## Issues
+Esta extensión no se descarga del Marketplace, así que **no se actualiza
+sola**. Si durante el curso se publica una versión nueva, se avisará por el
+Campus Virtual y habrá que repetir el paso 4 con el fichero nuevo. No hace
+falta desinstalar la anterior: al instalar el `.vsix` nuevo se sustituye.
 
-Project issues are managed on GitHub, see [Open Issues](https://github.com/borkdominik/bigER/issues) for the currently tracked issues. Do not hesitate to report a bug or request a feature through the offered [Issue Templates](https://github.com/borkdominik/bigER/issues/new/choose). For questions, simply use a blank issue.
+---
 
+# Notación
 
-<!-- CONTRIBUTING -->
-## Contributing
+La herramienta usa la notación bigER. Tienes toda la notación detallada en [este anexo de la asignatura Bases de Datos de la UEx](https://github.com/bd-uex/bd-contenidos/blob/main/labs/anexos/AL09.2%20-%20Notaci%C3%B3n%20BigER.md): 
 
-Contributions to the project are always welcome! See the [Contribution Guidelines](https://github.com/borkdominik/bigER/blob/main/docs/CONTRIBUTING.md) for more information.
+---
 
-**Contributors**:
-- [Philipp-Lorenz Glaser](https://github.com/plglaser) (main developer)   
-- [Georg Hammerschmied](https://github.com/SchmiedHammer) (multi-notation support)
-- [Hnatiuk Vladyslav](https://github.com/Aksem) (improved edge router)
-- [Christoph Lauscher](https://github.com/christoph-lauscher) (SQL import/export)
-- [Marinko Todorovic](https://github.com/marinkotodorovic) (NoSQL import/export)
-- [Dominik Bork](https://github.com/borkdominik)
+# Compilar desde el código
 
+Requisitos: JDK 17, Node 18 y Yarn. El repositorio incluye una configuración
+de *dev container*, así que con Docker y la extensión Dev Containers de VS
+Code basta con abrir la carpeta y elegir *Reopen in Container*.
 
-See [All Contributors](https://github.com/borkdominik/bigER/graphs/contributors).
+```bash
+# Servidor de lenguaje
+language-server/gradlew -p language-server/ build
 
-If you like our work, please feel free to [buy us a coffee](https://www.buymeacoffee.com/bigERtool) ☕️
+# Vista del diagrama
+yarn --cwd webview build
 
-<a href="https://www.buymeacoffee.com/bigERtool" target="_blank">
-  <img src="https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png" alt="Logo" >
-</a>
+# Extensión
+yarn --cwd extension run build
 
-<!-- LICENSE -->
-## License 
+# Empaquetar el .vsix
+yarn --cwd extension package
+```
 
-The project is distributed under the MIT License. See [License](https://github.com/borkdominik/bigER/blob/main/LICENSE) for more details.
+Para probar sin empaquetar, pulsa `F5` en VS Code: se abre una ventana de
+desarrollo con la extensión cargada.
 
-## Other Tools
+---
 
-Check out our other modeling tools!
+# Incidencias
 
-<a href="https://marketplace.visualstudio.com/items?itemName=BIGModelingTools.umldiagram"><img src="https://bigmodelingtools.gallerycdn.vsassets.io/extensions/bigmodelingtools/umldiagram/0.4.0/1696184688299/Microsoft.VisualStudio.Services.Icons.Default" alt="bigUML Logo" height="120" width="120" /></a>
+Si eres estudiante de la asignatura, comunícalo por el Campus Virtual.
+
+Si la incidencia es del comportamiento general de la herramienta y no de esta
+adaptación, es probable que corresponda al
+[proyecto original](https://github.com/borkdominik/bigER/issues).
+
+---
+
+# Licencia
+
+MIT. Ver el fichero [LICENSE](LICENSE).
+
+El copyright original corresponde a borkdominik; esta adaptación conserva esa
+atribución y añade la propia, como exige la licencia.
