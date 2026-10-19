@@ -312,14 +312,14 @@
 		"keybindings": [
 			{
 				"command": "erdiagram.diagram.open",
-				"key": "ctrl+k d",
-				"mac": "cmd+k d",
+				"key": "ctrl+alt+e",
+				"mac": "cmd+alt+e",
 				"when": "resourceExtname == '.erd'"
 			},
 			{
 				"command": "erdiagram.diagram.delete",
-				"key": "ctrl+backspace",
-				"mac": "cmd+backspace",
+				"key": "ctrl+alt+backspace",
+				"mac": "cmd+alt+backspace",
 				"when": "erdiagram-diagram-focused"
 			},
 			{

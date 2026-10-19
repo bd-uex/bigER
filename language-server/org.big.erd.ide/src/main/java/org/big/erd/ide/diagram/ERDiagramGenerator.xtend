@@ -133,12 +133,12 @@ class ERDiagramGenerator implements IDiagramGenerator {
 		val hasAttrs = !attrLines.empty
 
 		// ---- Métricas visuales ----
-		val double charW = 7.0
+		val double charW = 12.0
 		val double padX = 24.0
 		val double padTipY = 18.0
 
 		val double titleFont = 18.0
-		val double gapTitleToSep = 10.0     // espacio título -> separador
+		val double gapTitleToSep = 14.0     // espacio título -> separador
 		val double gapSepToAttrs = 12.0     // espacio separador -> atributos
 		val double attrLineH = 18.0         // separación entre atributos
 
@@ -153,7 +153,7 @@ class ERDiagramGenerator implements IDiagramGenerator {
 		val double cy = diamondH / 2.0
 
 		// Posiciones relativas del bloque interno
-		val double titleYRel = titleFont / 2.0         // centro del título
+		val double titleYRel = titleFont / 2.0 + 6.0        // centro del título
 		val double sepYRel = titleFont + gapTitleToSep // posición del separador
 
 		// Calcula el rango vertical del contenido para centrarlo en el rombo
